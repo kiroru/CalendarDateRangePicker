@@ -3,7 +3,7 @@ Pod::Spec.new do |s|
 
   # ―――  Spec Metadata  ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
   s.name         = "CalendarDateRangePicker"
-  s.version      = "1.3"
+  s.version      = "2.0"
   s.summary      = "A calendar date range picker view controller in Swift for iOS."
 
   s.description  = <<-DESC
@@ -17,14 +17,15 @@ Pod::Spec.new do |s|
 
 
   # ――― Author Metadata  ――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
-  s.author             = { "Ljuka" => "ljubom94@gmail.com" }
+  s.authors             = { "Ljuka" => "ljubom94@gmail.com",
+                            "aoki" => "aoki.sho@kiroru-inc.jp" }
 
   # ――― Platform Specifics ―――――――――――――――――――――――――――――――――――――――――――――――――――――――
   s.platform     = :ios
   s.ios.deployment_target = "9.0"
   s.swift_version = "4.2"
   # ――― Source Location ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
-  s.source       = { :git => "https://github.com/Ljuka/CalendarDateRangePicker.git" }
+  s.source       = { :git => "https://github.com/kiroru/CalendarDateRangePicker.git", :tag => s.version.to_s }
 
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #

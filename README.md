@@ -27,8 +27,10 @@ Just implement the delegate methods:
 
 ```swift
 protocol CalendarDateRangePickerViewControllerDelegate {
-    func didCancelPickingDateRange()
-    func didPickDateRange(startDate: Date!, endDate: Date!)
+    func didTapLeftBarButton(startDate: Date?, endDate: Date?)
+    func didTapRightBarButton(startDate: Date?, endDate: Date?)
+    func didSelectStartDate(startDate: Date?)
+    func didSelectEndDate(endDate: Date?)
 }
 ```
 
@@ -49,12 +51,13 @@ CalendarDateRangePickerViewController is available through [CocoaPods](http://co
 it, simply add the following line to your Podfile:
 
 ```ruby
-pod 'CalendarDateRangePicker'
+pod 'CalendarDateRangePicker', :git => 'https://github.com/kiroru/CalendarDateRangePicker.git', :branch => 'fork_release'
 ```
 
 ## Author
 
 Ljuka, ljubom94@gmail.com
+aoki, aoki.sho@kiroru-inc.jp
 
 ## License
 
