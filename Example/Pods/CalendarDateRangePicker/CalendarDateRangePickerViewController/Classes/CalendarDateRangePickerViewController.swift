@@ -83,6 +83,7 @@ public class CalendarDateRangePickerViewController: UICollectionViewController {
         self.navigationItem.rightBarButtonItem = self.rightBarButtonItem
 
         if let newIndexPath = getIndexPathFromDate(date: selectedStartDate ?? Date()) {
+            collectionView?.layoutIfNeeded()
             collectionView?.scrollToItem(at: newIndexPath, at: .centeredVertically, animated: false)
         }
     }
