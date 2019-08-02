@@ -52,6 +52,9 @@ public class CalendarDateRangePickerViewController: UICollectionViewController {
     @objc public var sundayColor = UIColor.red
     @objc public var maxSelectableRange = 30
 
+    @objc let calendar = Calendar(identifier: .gregorian)
+    @objc public var dateFormatterLocale = Locale(identifier: "en_US_POSIX")
+
     override public func viewDidLoad() {
         super.viewDidLoad()
         
@@ -69,7 +72,7 @@ public class CalendarDateRangePickerViewController: UICollectionViewController {
             minimumDate = Date()
         }
         if maximumDate == nil {
-            maximumDate = Calendar.current.date(byAdding: .year, value: 3, to: minimumDate)
+            maximumDate = calendar.date(byAdding: .year, value: 3, to: minimumDate)
         }
 
         self.leftBarButtonItem.target = self
@@ -78,6 +81,10 @@ public class CalendarDateRangePickerViewController: UICollectionViewController {
         self.rightBarButtonItem.target = self
         self.rightBarButtonItem.action = #selector(CalendarDateRangePickerViewController.didTapRightBarButton)
         self.navigationItem.rightBarButtonItem = self.rightBarButtonItem
+
+        if let newIndexPath = getIndexPathFromDate(date: selectedStartDate ?? Date()) {
+            collectionView?.scrollToItem(at: newIndexPath, at: .centeredVertically, animated: false)
+        }
     }
     
     @objc func didTapLeftBarButton() {
@@ -214,7 +221,7 @@ extension CalendarDateRangePickerViewController: UICollectionViewDelegateFlowLay
             if isBefore(dateA: selectedStartDate!, dateB: cellDate) && !isBetween(selectedStartCell!, and: indexPath) {
                 if (getDifferenceOfDay(from: selectedStartDate!, to: cellDate) + 1) > maxSelectableRange, let newIndexPath = getIndexPathFromDate(date: getMaxSelectableDate() ?? Date()) {
                     // If out of the selection range, select the end point of the selection range
-                    selectedEndDate = Calendar.current.date(byAdding: .day, value: maxSelectableRange - 1, to: selectedStartDate ?? Date()) ?? Date()
+                    selectedEndDate = calendar.date(byAdding: .day, value: maxSelectableRange - 1, to: selectedStartDate ?? Date()) ?? Date()
                     collectionView.scrollToItem(at: newIndexPath, at: .centeredVertically, animated: true)
                 } else {
                     selectedEndDate = cellDate
@@ -262,58 +269,60 @@ extension CalendarDateRangePickerViewController {
     // Helper functions
     
     @objc func getFirstDate() -> Date {
-        var components = Calendar.current.dateComponents([.month, .year], from: minimumDate)
+        var components = calendar.dateComponents([.month, .year], from: minimumDate)
         components.day = 1
-        return Calendar.current.date(from: components)!
+        return calendar.date(from: components)!
     }
     
     @objc func getFirstDateForSection(section: Int) -> Date {
-        return Calendar.current.date(byAdding: .month, value: section, to: getFirstDate())!
+        return calendar.date(byAdding: .month, value: section, to: getFirstDate())!
     }
     
     @objc func getMonthLabel(date: Date) -> String {
         let dateFormatter = DateFormatter()
+        dateFormatter.locale = dateFormatterLocale
         dateFormatter.dateFormat = "MMMM yyyy"
         return dateFormatter.string(from: date)
     }
     
     @objc func getWeekdayLabel(weekday: Int) -> String {
         var components = DateComponents()
-        components.calendar = Calendar.current
+        components.calendar = calendar
         components.weekday = weekday
-        let date = Calendar.current.nextDate(after: Date(), matching: components, matchingPolicy: Calendar.MatchingPolicy.strict)
+        let date = calendar.nextDate(after: Date(), matching: components, matchingPolicy: Calendar.MatchingPolicy.strict)
         if date == nil {
             return "E"
         }
         let dateFormatter = DateFormatter()
+        dateFormatter.locale = dateFormatterLocale
         dateFormatter.dateFormat = "EEEEE"
         return dateFormatter.string(from: date!)
     }
     
     @objc func getWeekday(date: Date) -> Int {
-        return Calendar.current.dateComponents([.weekday], from: date).weekday!
+        return calendar.dateComponents([.weekday], from: date).weekday!
     }
     
     @objc func getNumberOfDaysInMonth(date: Date) -> Int {
-        return Calendar.current.range(of: .day, in: .month, for: date)!.count
+        return calendar.range(of: .day, in: .month, for: date)!.count
     }
     
     @objc func getDate(dayOfMonth: Int, section: Int) -> Date {
-        var components = Calendar.current.dateComponents([.month, .year], from: getFirstDateForSection(section: section))
+        var components = calendar.dateComponents([.month, .year], from: getFirstDateForSection(section: section))
         components.day = dayOfMonth
-        return Calendar.current.date(from: components)!
+        return calendar.date(from: components)!
     }
     
     @objc func areSameDay(dateA: Date, dateB: Date) -> Bool {
-        return Calendar.current.compare(dateA, to: dateB, toGranularity: .day) == ComparisonResult.orderedSame
+        return calendar.compare(dateA, to: dateB, toGranularity: .day) == ComparisonResult.orderedSame
     }
     
     @objc func isBefore(dateA: Date, dateB: Date) -> Bool {
-        return Calendar.current.compare(dateA, to: dateB, toGranularity: .day) == ComparisonResult.orderedAscending
+        return calendar.compare(dateA, to: dateB, toGranularity: .day) == ComparisonResult.orderedAscending
     }
 
     @objc func isAfter(dateA: Date, dateB: Date) -> Bool {
-        return Calendar.current.compare(dateA, to: dateB, toGranularity: .day) == ComparisonResult.orderedDescending
+        return calendar.compare(dateA, to: dateB, toGranularity: .day) == ComparisonResult.orderedDescending
     }
     
     @objc func isBetween(_ startDateCellIndex: IndexPath, and endDateCellIndex: IndexPath) -> Bool {
@@ -348,8 +357,6 @@ extension CalendarDateRangePickerViewController {
     }
 
     @objc func getDifferenceOfDay(from: Date, to: Date) -> Int {
-        let calendar = Calendar.current
-
         let fromDayComponents = calendar.dateComponents([.year, .month, .day], from: from)
         let fromDay = calendar.date(from: fromDayComponents)
 
@@ -362,8 +369,6 @@ extension CalendarDateRangePickerViewController {
     }
 
     @objc func getDifferenceOfMonth(from: Date, to: Date) -> Int {
-        let calendar = Calendar.current
-
         var firstDayComponents = calendar.dateComponents([.year, .month, .day], from: from)
         firstDayComponents.day = 1
         let minimumMonthFirstDate = calendar.date(from: firstDayComponents)
@@ -379,14 +384,12 @@ extension CalendarDateRangePickerViewController {
 
     @objc func getMaxSelectableDate() -> Date? {
         guard let selectedStartDate = selectedStartDate else { return nil }
-        let calendar = Calendar.current
         let maxSelectableDate = calendar.date(byAdding: .day, value: maxSelectableRange - 1, to: selectedStartDate)
         return maxSelectableDate
     }
 
     @objc func getIndexPathFromDate(date: Date) -> IndexPath? {
         guard let selectedStartDate = selectedStartDate else { return nil }
-        let calendar = Calendar.current
         let diff = getDifferenceOfMonth(from: selectedStartDate, to: date)
         let selectedStartDateSection = getDifferenceOfMonth(from: minimumDate, to: selectedStartDate)
         let section = selectedStartDateSection + diff
